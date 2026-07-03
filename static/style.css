@@ -1,0 +1,134 @@
+/* Styles for ShopSphere.
+   The page has a header on top, then two columns: products on the left
+   and the cart on the right. */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  margin: 0;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+/* Top bar */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: #0f766e;
+  color: #fff;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+#total {
+  font-weight: bold;
+}
+
+/* Two column layout. On small screens it becomes one column. */
+main {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+@media (max-width: 700px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+}
+
+h2 {
+  font-size: 1.1rem;
+  margin-top: 0;
+}
+
+/* The product grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.card .emoji {
+  font-size: 2.5rem;
+}
+
+.card .name {
+  font-weight: 600;
+  margin: 0.5rem 0 0.25rem;
+}
+
+.card .price {
+  color: #475569;
+  margin-bottom: 0.75rem;
+}
+
+/* Buttons */
+button {
+  padding: 0.5rem 0.9rem;
+  background: #0f766e;
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #0d5f58;
+}
+
+button.secondary {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+button.secondary:hover {
+  background: #cbd5e1;
+}
+
+/* The cart panel */
+.cart {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem;
+  height: fit-content;
+}
+
+#cart {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+
+#cart li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.95rem;
+}
+
+.cart-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
