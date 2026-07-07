@@ -4,9 +4,9 @@
 **Updated:** July 2026  
 **Author:** [Panashe Sanyanga](https://github.com/code-by-panashe-sanyanga)
 
-A small online shop built with Flask. Browse products with photos, search the catalogue, add items to a session-based basket, change quantities, and complete a fake checkout. The frontend is plain HTML, CSS, and JavaScript.
+A small online shop built with Flask. Browse products with photos, search the list, add items to a session cart, change quantities, and run through checkout. Runs locally on your machine — student learning project, not a real store.
 
-I built this to practise **session-based state** in a web app without setting up a database.
+After PixelGram I wanted the basket on the server without setting up another database. Flask sessions were enough for that.
 
 ---
 
@@ -31,7 +31,7 @@ Each browser visitor gets their own basket via a signed Flask session cookie.
 | **Flask** | Same stack as PixelGram — I could reuse patterns for serving static files and JSON routes. |
 | **Flask sessions** | Good fit for a basket that belongs to one browser without user login. The basket is a dict in the session: `{ "product_id": quantity }`. |
 | **In-memory `PRODUCTS` list** | The catalogue is small and static. Keeping it in `app.py` was enough for six items. |
-| **Vanilla JS** | Practise updating the basket UI after each API call without React. |
+| **Vanilla JS** | Updates the basket UI after each API call without React. |
 | **Product images in `static/images/`** | Real photos look more like a proper shop than emoji placeholders. |
 
 ---
