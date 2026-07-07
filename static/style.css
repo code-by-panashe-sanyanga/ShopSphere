@@ -1,134 +1,380 @@
-/* Styles for ShopSphere.
-   The page has a header on top, then two columns: products on the left
-   and the cart on the right. */
+/* ShopSphere styles
+   I kept the teal brand from the first version but made the layout feel more
+   like a normal shop page: white header, product photos, and a basket panel. */
+
+/* Colours I reuse so I can tweak the theme in one place. */
+:root {
+  --teal: #0f766e;
+  --teal-dark: #0d5f58;
+  --bg: #f4f5f7;
+  --panel: #ffffff;
+  --text: #111827;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --border-soft: #f3f4f6;
+}
 
 * {
   box-sizing: border-box;
 }
 
 body {
-  font-family: system-ui, sans-serif;
   margin: 0;
-  background: #f8fafc;
-  color: #0f172a;
+  font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
 }
 
-/* Top bar */
-header {
+/* Hides labels that screen readers still need */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Top bar — shop name on the left, basket total on the right */
+.site-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
   padding: 1rem 1.5rem;
-  background: #0f766e;
-  color: #fff;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
 }
 
-header h1 {
+.brand h1 {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: 1.25rem;
+  color: var(--teal);
+  letter-spacing: -0.02em;
 }
 
-#total {
-  font-weight: bold;
+.tagline {
+  margin: 0.1rem 0 0;
+  font-size: 0.82rem;
+  color: var(--muted);
 }
 
-/* Two column layout. On small screens it becomes one column. */
+.header-total {
+  text-align: right;
+}
+
+.header-total .label {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.header-total strong {
+  font-size: 1.15rem;
+}
+
+/* Two columns on desktop: catalogue + basket */
 main {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 1.5rem;
-  padding: 1.5rem;
-  max-width: 1000px;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem 2rem;
+  max-width: 1120px;
   margin: 0 auto;
 }
 
-@media (max-width: 700px) {
-  main {
-    grid-template-columns: 1fr;
-  }
+/* Heading row used in both panels (title + search or item count) */
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
 }
 
 h2 {
-  font-size: 1.1rem;
-  margin-top: 0;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
-/* The product grid */
+.search-wrap input {
+  width: 240px;
+  max-width: 100%;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+  background: #fff;
+}
+
+.products-panel,
+.cart {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+/* Basket stays visible while scrolling on wider screens */
+.cart {
+  height: fit-content;
+  position: sticky;
+  top: 1rem;
+}
+
+/* Product cards fill the row and wrap on smaller widths */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 0.85rem;
 }
 
 .card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
   background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 1rem;
-  text-align: center;
 }
 
-.card .emoji {
-  font-size: 2.5rem;
+/* Fixed ratio so all product photos line up neatly */
+.card-thumb {
+  aspect-ratio: 4 / 3;
+  background: #f9fafb;
+  border-bottom: 1px solid var(--border-soft);
+  overflow: hidden;
+}
+
+.card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.card-body {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.card .meta {
+  margin: 0 0 0.25rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .card .name {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  margin: 0.5rem 0 0.25rem;
 }
 
 .card .price {
-  color: #475569;
-  margin-bottom: 0.75rem;
+  margin: 0 0 0.75rem;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
-/* Buttons */
+.card button {
+  margin-top: auto;
+}
+
+/* Shared button styles */
 button {
-  padding: 0.5rem 0.9rem;
-  background: #0f766e;
+  padding: 0.5rem 0.85rem;
+  background: var(--teal);
   color: #fff;
   border: 0;
   border-radius: 6px;
   cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
-button:hover {
-  background: #0d5f58;
+button:hover:not(:disabled) {
+  background: var(--teal-dark);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 button.secondary {
-  background: #e2e8f0;
-  color: #0f172a;
-}
-
-button.secondary:hover {
-  background: #cbd5e1;
-}
-
-/* The cart panel */
-.cart {
   background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 1rem;
-  height: fit-content;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+button.secondary:hover:not(:disabled) {
+  background: var(--border-soft);
+}
+
+button.ghost {
+  background: transparent;
+  color: var(--muted);
+  border: 0;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+button.ghost:hover:not(:disabled) {
+  color: #991b1b;
+}
+
+.badge {
+  font-size: 0.75rem;
+  color: var(--muted);
+  background: var(--border-soft);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
 }
 
 #cart {
   list-style: none;
-  margin: 0 0 1rem;
+  margin: 0;
   padding: 0;
 }
 
-#cart li {
+/* Each basket line has name, price, qty controls */
+.cart-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.25rem 0.75rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.cart-item:last-child {
+  border-bottom: 0;
+}
+
+.cart-item-name {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.cart-item-price {
+  color: var(--muted);
+  font-size: 0.82rem;
+  grid-column: 1;
+}
+
+.cart-item-total {
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-align: right;
+}
+
+.qty-controls {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.qty-controls button {
+  min-width: 1.85rem;
+  padding: 0.15rem 0.4rem;
+}
+
+.qty-controls span {
+  min-width: 1.25rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.empty.hidden {
+  display: none;
+}
+
+.cart-summary {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.summary-row {
   display: flex;
   justify-content: space-between;
-  padding: 0.4rem 0;
-  border-bottom: 1px solid #f1f5f9;
+  font-weight: 600;
   font-size: 0.95rem;
 }
 
 .cart-buttons {
   display: flex;
   gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.cart-buttons button {
+  flex: 1;
+}
+
+/* Toast message at the bottom instead of alert() */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.25rem;
+  transform: translateX(-50%) translateY(120%);
+  background: #111827;
+  color: #fff;
+  padding: 0.65rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  opacity: 0;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  pointer-events: none;
+  max-width: calc(100% - 2rem);
+  text-align: center;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.toast.error {
+  background: #7f1d1d;
+}
+
+.toast.success {
+  background: #14532d;
+}
+
+/* Stack everything in one column on phones */
+@media (max-width: 800px) {
+  .site-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  main {
+    grid-template-columns: 1fr;
+  }
+
+  .cart {
+    position: static;
+  }
 }

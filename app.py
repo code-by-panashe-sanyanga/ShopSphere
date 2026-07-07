@@ -10,15 +10,14 @@ app = Flask(__name__, static_folder="static")
 # In a real app this would be a long random value kept out of the code.
 app.secret_key = "shopsphere-dev"
 
-# Our little catalogue. Each product has an id, a name, a price, and an emoji
-# that we use as a simple picture on the frontend.
+# Our catalogue. Prices are in GBP. Images live in static/images/.
 PRODUCTS = [
-    {"id": 1, "name": "Notebook", "price": 4.5, "emoji": "\U0001F4D3"},
-    {"id": 2, "name": "Mug", "price": 12.0, "emoji": "\u2615"},
-    {"id": 3, "name": "Headphones", "price": 49.0, "emoji": "\U0001F3A7"},
-    {"id": 4, "name": "Backpack", "price": 35.0, "emoji": "\U0001F392"},
-    {"id": 5, "name": "Pen set", "price": 6.5, "emoji": "\U0001F58A"},
-    {"id": 6, "name": "Water bottle", "price": 9.0, "emoji": "\U0001F9F4"},
+    {"id": 1, "name": "Hardcover Notebook", "price": 3.99, "category": "Stationery", "sku": "SS-001", "image": "notebook.jpg"},
+    {"id": 2, "name": "Ceramic Mug", "price": 9.99, "category": "Kitchen", "sku": "SS-002", "image": "mug.jpg"},
+    {"id": 3, "name": "Wireless Headphones", "price": 44.99, "category": "Electronics", "sku": "SS-003", "image": "headphones.jpg"},
+    {"id": 4, "name": "Day Backpack", "price": 32.00, "category": "Bags", "sku": "SS-004", "image": "backpack.jpg"},
+    {"id": 5, "name": "Pen Set (3 pack)", "price": 5.50, "category": "Stationery", "sku": "SS-005", "image": "pens.jpg"},
+    {"id": 6, "name": "Steel Water Bottle", "price": 8.00, "category": "Kitchen", "sku": "SS-006", "image": "bottle.jpg"},
 ]
 
 
@@ -81,6 +80,32 @@ def add_to_cart():
     return jsonify({"ok": True})
 
 
+# Change quantity for one product. qty 0 removes the line.
+@app.patch("/api/cart/item")
+def update_cart_item():
+    data = request.get_json() or {}
+    product_id = str(data.get("product_id", ""))
+    qty = data.get("qty")
+
+    if find_product(product_id) is None:
+        return jsonify({"error": "unknown product"}), 400
+
+    try:
+        qty = int(qty)
+    except (TypeError, ValueError):
+        return jsonify({"error": "invalid quantity"}), 400
+
+    cart = session.get("cart", {})
+
+    if qty <= 0:
+        cart.pop(product_id, None)
+    else:
+        cart[product_id] = qty
+
+    session["cart"] = cart
+    return jsonify({"ok": True})
+
+
 # Empty the whole cart.
 @app.delete("/api/cart")
 def clear_cart():
@@ -94,7 +119,7 @@ def clear_cart():
 def checkout():
     cart = session.get("cart", {})
     if not cart:
-        return jsonify({"error": "cart is empty"}), 400
+        return jsonify({"error": "basket is empty"}), 400
 
     total = 0
     for product_id, qty in cart.items():

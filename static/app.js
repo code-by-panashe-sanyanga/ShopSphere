@@ -1,105 +1,238 @@
-// This file loads the products, draws the cart, and handles the buttons.
+// ShopSphere frontend
+// Loads products from the API, draws the catalogue, and keeps the basket updated.
 
-// Get the products from the backend and show them as cards.
+let products = [];
+let searchTerm = '';
+
+// Show a short message at the bottom of the screen.
+function showToast(message, type) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = 'toast show' + (type ? ' ' + type : '');
+
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(function () {
+    toast.className = 'toast';
+  }, 3200);
+}
+
+// Prices are shown in pounds for the UK shop demo.
+function formatMoney(amount) {
+  return '£' + amount.toFixed(2);
+}
+
 async function loadProducts() {
   const response = await fetch('/api/products');
-  const products = await response.json();
+  products = await response.json();
+  renderProducts();
+}
 
+function renderProducts() {
   const box = document.getElementById('products');
+  const empty = document.getElementById('products-empty');
+  const term = searchTerm.trim().toLowerCase();
+  const filtered = products.filter(function (product) {
+    if (!term) {
+      return true;
+    }
+    return (
+      product.name.toLowerCase().includes(term) ||
+      product.category.toLowerCase().includes(term) ||
+      product.sku.toLowerCase().includes(term)
+    );
+  });
+
   box.innerHTML = '';
 
-  products.forEach(function (product) {
+  if (filtered.length === 0) {
+    empty.classList.remove('hidden');
+    return;
+  }
+
+  empty.classList.add('hidden');
+
+  filtered.forEach(function (product) {
     box.appendChild(makeProductCard(product));
   });
 }
 
-// Build one product card with an emoji, name, price, and an Add button.
+// Build one product card with a photo, category, price, and add button.
 function makeProductCard(product) {
-  const card = document.createElement('div');
+  const card = document.createElement('article');
   card.className = 'card';
 
-  const emoji = document.createElement('div');
-  emoji.className = 'emoji';
-  emoji.textContent = product.emoji;
-  card.appendChild(emoji);
+  const thumb = document.createElement('div');
+  thumb.className = 'card-thumb';
 
-  const name = document.createElement('div');
+  const img = document.createElement('img');
+  img.src = '/images/' + product.image;
+  img.alt = product.name;
+  img.loading = 'lazy';
+  thumb.appendChild(img);
+  card.appendChild(thumb);
+
+  const body = document.createElement('div');
+  body.className = 'card-body';
+
+  const meta = document.createElement('p');
+  meta.className = 'meta';
+  meta.textContent = product.category + ' · ' + product.sku;
+  body.appendChild(meta);
+
+  const name = document.createElement('h3');
   name.className = 'name';
   name.textContent = product.name;
-  card.appendChild(name);
+  body.appendChild(name);
 
-  const price = document.createElement('div');
+  const price = document.createElement('p');
   price.className = 'price';
-  price.textContent = '$' + product.price.toFixed(2);
-  card.appendChild(price);
+  price.textContent = formatMoney(product.price);
+  body.appendChild(price);
 
   const addButton = document.createElement('button');
-  addButton.textContent = 'Add to cart';
+  addButton.type = 'button';
+  addButton.textContent = 'Add to basket';
   addButton.onclick = function () {
     addToCart(product.id);
   };
-  card.appendChild(addButton);
+  body.appendChild(addButton);
 
+  card.appendChild(body);
   return card;
 }
 
-// Send one product to the cart, then refresh the cart view.
 async function addToCart(productId) {
   await fetch('/api/cart', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ product_id: productId })
   });
+  showToast('Added to basket', 'success');
   loadCart();
 }
 
-// Get the cart from the backend and show the items and the total.
+async function updateQty(productId, qty) {
+  await fetch('/api/cart/item', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ product_id: productId, qty: qty })
+  });
+  loadCart();
+}
+
 async function loadCart() {
   const response = await fetch('/api/cart');
   const data = await response.json();
 
-  document.getElementById('total').textContent = 'Total: $' + data.total.toFixed(2);
+  document.getElementById('total').textContent = formatMoney(data.total);
+  document.getElementById('subtotal').textContent = formatMoney(data.total);
+
+  const itemCount = data.items.reduce(function (sum, item) {
+    return sum + item.qty;
+  }, 0);
+  document.getElementById('cart-count').textContent = itemCount + (itemCount === 1 ? ' item' : ' items');
 
   const list = document.getElementById('cart');
+  const empty = document.getElementById('cart-empty');
   list.innerHTML = '';
 
-  // If the cart is empty, show a short message instead of an empty box.
   if (data.items.length === 0) {
-    const li = document.createElement('li');
-    li.textContent = 'Your cart is empty';
-    list.appendChild(li);
+    empty.classList.remove('hidden');
+    document.getElementById('checkout').disabled = true;
     return;
   }
 
+  empty.classList.add('hidden');
+  document.getElementById('checkout').disabled = false;
+
   data.items.forEach(function (item) {
-    const li = document.createElement('li');
-    const left = item.name + ' x' + item.qty;
-    const right = '$' + (item.price * item.qty).toFixed(2);
-    li.textContent = left + '  ' + right;
-    list.appendChild(li);
+    list.appendChild(makeCartRow(item));
   });
 }
 
-// Empty the cart.
+function makeCartRow(item) {
+  const li = document.createElement('li');
+  li.className = 'cart-item';
+
+  const name = document.createElement('div');
+  name.className = 'cart-item-name';
+  name.textContent = item.name;
+  li.appendChild(name);
+
+  const unitPrice = document.createElement('div');
+  unitPrice.className = 'cart-item-price';
+  unitPrice.textContent = formatMoney(item.price) + ' each';
+  li.appendChild(unitPrice);
+
+  const lineTotal = document.createElement('div');
+  lineTotal.className = 'cart-item-total';
+  lineTotal.textContent = formatMoney(item.price * item.qty);
+  li.appendChild(lineTotal);
+
+  const controls = document.createElement('div');
+  controls.className = 'qty-controls';
+
+  const minus = document.createElement('button');
+  minus.type = 'button';
+  minus.className = 'secondary';
+  minus.textContent = '−';
+  minus.setAttribute('aria-label', 'Decrease quantity');
+  minus.onclick = function () {
+    updateQty(item.id, item.qty - 1);
+  };
+
+  const qty = document.createElement('span');
+  qty.textContent = String(item.qty);
+
+  const plus = document.createElement('button');
+  plus.type = 'button';
+  plus.className = 'secondary';
+  plus.textContent = '+';
+  plus.setAttribute('aria-label', 'Increase quantity');
+  plus.onclick = function () {
+    updateQty(item.id, item.qty + 1);
+  };
+
+  const remove = document.createElement('button');
+  remove.type = 'button';
+  remove.className = 'ghost';
+  remove.textContent = 'Remove';
+  remove.onclick = function () {
+    updateQty(item.id, 0);
+  };
+
+  controls.appendChild(minus);
+  controls.appendChild(qty);
+  controls.appendChild(plus);
+  controls.appendChild(remove);
+  li.appendChild(controls);
+
+  return li;
+}
+
+document.getElementById('search').addEventListener('input', function (event) {
+  searchTerm = event.target.value;
+  renderProducts();
+});
+
 document.getElementById('clear').onclick = async function () {
   await fetch('/api/cart', { method: 'DELETE' });
+  showToast('Basket cleared');
   loadCart();
 };
 
-// Check out. The backend clears the cart and sends back a thank you message.
 document.getElementById('checkout').onclick = async function () {
   const response = await fetch('/api/checkout', { method: 'POST' });
   const data = await response.json();
 
   if (data.error) {
-    alert(data.error);
+    showToast(data.error, 'error');
     return;
   }
 
-  alert(data.message + ' Total was $' + data.total.toFixed(2));
+  showToast(data.message + ' Total: ' + formatMoney(data.total), 'success');
   loadCart();
 };
 
-// Load everything when the page opens.
 loadProducts();
 loadCart();

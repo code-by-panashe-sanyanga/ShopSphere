@@ -7,29 +7,56 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Top bar with the shop name and the running total -->
-  <header>
-    <h1>ShopSphere</h1>
-    <span id="total">Total: $0.00</span>
+  <!-- Top bar with the shop name and the running basket total -->
+  <header class="site-header">
+    <div class="brand">
+      <h1>ShopSphere</h1>
+      <p class="tagline">Office &amp; everyday essentials</p>
+    </div>
+    <div class="header-total">
+      <span class="label">Basket total</span>
+      <strong id="total">£0.00</strong>
+    </div>
   </header>
 
   <main>
-    <!-- Left side: the list of products you can buy -->
-    <section class="products">
-      <h2>Products</h2>
-      <div id="products" class="grid"></div>
+    <!-- Left side: product catalogue. Cards are built in app.js -->
+    <section class="products-panel">
+      <div class="panel-head">
+        <h2>Catalogue</h2>
+        <!-- Search filters the product list on the client -->
+        <label class="search-wrap">
+          <span class="sr-only">Search products</span>
+          <input id="search" type="search" placeholder="Search products..." />
+        </label>
+      </div>
+      <div id="products" class="grid" aria-live="polite"></div>
+      <p id="products-empty" class="empty hidden">No products match that search.</p>
     </section>
 
-    <!-- Right side: your cart -->
-    <aside class="cart">
-      <h2>Your cart</h2>
+    <!-- Right side: basket summary and checkout buttons -->
+    <aside class="cart" aria-label="Shopping basket">
+      <div class="panel-head">
+        <h2>Basket</h2>
+        <span id="cart-count" class="badge">0 items</span>
+      </div>
       <ul id="cart"></ul>
+      <p id="cart-empty" class="empty">Your basket is empty.</p>
+      <div class="cart-summary">
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span id="subtotal">£0.00</span>
+        </div>
+      </div>
       <div class="cart-buttons">
-        <button id="checkout">Checkout</button>
-        <button id="clear" class="secondary">Clear cart</button>
+        <button id="checkout" type="button">Checkout</button>
+        <button id="clear" class="secondary" type="button">Clear basket</button>
       </div>
     </aside>
   </main>
+
+  <!-- Small message that appears after add to basket / checkout -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="app.js"></script>
 </body>
