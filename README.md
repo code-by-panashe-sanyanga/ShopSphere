@@ -4,7 +4,7 @@
 **Updated:** July 2026  
 **Author:** [Panashe Sanyanga](https://github.com/code-by-panashe-sanyanga)
 
-A small online shop built with Flask. Browse products with photos, search the list, add items to a session cart, change quantities, and run through checkout. Runs locally on your machine — student learning project, not a real store.
+A small online shop built with Flask. Browse products with photos, search the list, add items to a session cart, change quantities, and run through checkout. Runs locally on your machine student learning project, not a real store.
 
 After PixelGram I wanted the basket on the server without setting up another database. Flask sessions were enough for that.
 
